@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, Button,Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EditContactScreen = ({ route,navigation }) => {

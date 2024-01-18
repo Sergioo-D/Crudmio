@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { TouchableOpacity } from 'react-native';
 
 class ContactDetailScreen extends React.Component {
 
@@ -70,7 +72,9 @@ class ContactDetailScreen extends React.Component {
         <Text style={{ fontSize: 20 }}>Email: {contact.email}</Text>
         <Text style={{ fontSize: 20 }}>Dirección: {contact.address}</Text>
         <Button title="Editar" onPress={this.handleEdit} />
-        <Button title="Eliminar" onPress={this.handleDelete} />
+        <TouchableOpacity onPress={this.handleDelete}>
+        <Icon name="trash-outline" size={30} color="#900" />
+      </TouchableOpacity>
       </View>
     );
   }

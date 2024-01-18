@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const HomeScreen = ({ navigation }) => {
     const [contacts, setContacts] = useState([]);
@@ -24,6 +25,22 @@ const HomeScreen = ({ navigation }) => {
         }, [])
     );
 
+    const logout = async () => {
+        await AsyncStorage.removeItem('@username');
+        await AsyncStorage.removeItem('@password');
+        navigation.navigate('Login');
+    };
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={logout}>
+                    <Icon name="sign-out" size={30} color="#000" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -44,6 +61,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
     );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

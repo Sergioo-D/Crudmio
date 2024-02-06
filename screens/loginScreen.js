@@ -1,50 +1,77 @@
-import React, { useState } from 'react';
-import { View,Alert } from 'react-native';
-import { Input, Button } from 'react-native-elements';
+import React, { useState, useContext,useEffect } from 'react';
+import { Button, View, Text, TextInput,StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { ToastAndroid } from 'react-native';
 
-const LoginScreen = ({ route,navigation }) => {
+const LoginScreen = ({ navigation }) => {
+  const { user,setUser } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
-      const storedUsername = await AsyncStorage.getItem('username');
-      const storedPassword = await AsyncStorage.getItem('password');
+      const storedUsers = await AsyncStorage.getItem('users');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
   
-      if (storedUsername !== null && storedPassword !== null) {
-        if (username === storedUsername && password === storedPassword) {
-          // El usuario está registrado, puedes navegar a la pantalla principal
-          navigation.navigate('Inicio');
-        } else {
-          // Los datos introducidos no coinciden con los datos registrados
-          Alert.alert('Error', 'Nombre de usuario o contraseña incorrectos');
-        }
+      const user = users.find(user => user.username === username && user.password === password);
+  
+      if (user) {
+        setUser({ id: user.id, username: user.username });
+        navigation.navigate('Inicio');
       } else {
-        // No hay datos de usuario en AsyncStorage
-        Alert.alert('Error', 'No hay datos de usuario registrados');
+        ToastAndroid.show('Usuario o contraseña incorrectos', ToastAndroid.SHORT);
       }
     } catch (error) {
-      // Error al recuperar los datos de AsyncStorage
       console.error(error);
     }
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      // Esta función se ejecutará cada vez que la pantalla gane el foco
+      setPassword('');
+      return () => {};
+    }, [])
+  );
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'flex-start', // Alinea los elementos al inicio
+      alignItems: 'center',
+      backgroundColor: '#FFD1DC', // Rosa palo
+      padding: 10, // Agrega un poco de padding alrededor
+    },
+    textContainer: {
+      backgroundColor: '#FFFFFF', // Fondo blanco
+      padding: 10, // Agrega un poco de padding alrededor
+      borderRadius: 10, // Bordes redondeados
+      marginBottom: 10, // Margen inferior para separar del botón
+      width: '100%', // Ocupa todo el ancho disponible
+    },
+    text: {
+      fontSize: 18, // Tamaño de fuente más grande
+    },
+    button: {
+      backgroundColor: '#EE82EE', // Violeta
+      color: '#FFFFFF', // Texto blanco
+    },
+  });
+  
   return (
-    <View>
-      <Input
-        placeholder='Nombre Usuario'
-        value={username}
-        onChangeText={setUsername}
-      />
-      <Input
-        placeholder='Password'
-        value={password}
-        secureTextEntry
-        onChangeText={setPassword}
-      />
-      <Button title='Login' onPress={handleLogin} />
-      <Button title = 'Registro' onPress={() => navigation.navigate('Registro')} />
+    <View style={styles.container}>
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>Usuario</Text>
+        <TextInput placeholder='Nombre de usuario' value={username} onChangeText={setUsername} />
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>Contraseña</Text>
+        <TextInput placeholder='Contraseña' value={password} onChangeText={setPassword} secureTextEntry />
+      </View>
+      <Button title='Iniciar sesión' onPress={handleLogin} color={styles.button.backgroundColor} />
+      <Button title='Registrarse' onPress={() => navigation.navigate('Registro')} color={styles.button.backgroundColor} />
     </View>
   );
 };
